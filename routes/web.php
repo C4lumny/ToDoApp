@@ -1,11 +1,16 @@
 <?php
 
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\TodosController;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', function () {
-    return view('todo');
-});
+Route::get('/', [TodosController::class, 'index'])->name('todos.index');
+
+Route::post('/todos', [TodosController::class, 'store'])->name('todos.store');
+
+Route::delete('/todos/{id}', [TodosController::class, 'destroy'])->name('todos.destroy');
+
+Route::patch('/todos/{id}', [TodosController::class, 'update'])->name('todos.update');
 
 Route::get('/dashboard', function () {
     return view('dashboard');
@@ -17,4 +22,4 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
-require __DIR__.'/auth.php';
+require __DIR__ . '/auth.php';

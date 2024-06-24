@@ -1,10 +1,3 @@
-{{-- Colors list for the lil project 🖌️
-- Blue: #4EA8DE
-- Dark blue: #1E6F9F
-- Purple: #8284FA
-- Purple-Dark: #5E60CE
-
---}}
 <!DOCTYPE html>
 <html lang="es">
 
@@ -12,8 +5,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Document</title>
+    <title>ToDo Master</title>
     @vite('resources/css/app.css')
+    <link rel="icon" href="{{ asset('/icons/rocket.svg') }}" type="image/x-icon">
 </head>
 
 <body class="bg-[#1A1A1A] relative">
@@ -24,25 +18,47 @@
     </div>
 
     {{-- Create a new task ✅ --}}
-    <div class="absolute top-44 left-1/2 transform -translate-x-1/2 flex gap-2 justify-center items-center">
-        <input type="text" placeholder="Añada una nueva tarea"
+    <form class="absolute top-44 left-1/2 transform -translate-x-1/2 flex gap-2 justify-center items-center"
+        action="{{ route('todos.store') }}" method="POST">
+        @csrf
+
+        <input name="title" type="text" placeholder="Añada una nueva tarea"
             class="bg-[#262626] rounded-lg p-4 w-[39rem] border-none focus:outline-none">
         <button class="p-4 flex gap-2 rounded-lg bg-[#1E6F9F] items-center hover:bg-[#4EA8DE]">
             Crear
             <img src="{{ asset('icons/plus.svg') }}" alt="">
         </button>
-    </div>
+    </form>
+
+    {{-- Success message ✅ --}}
+    @if (session('success'))
+        <div class="w-full flex justify-center items-center">
+            <div class="mt-8 w-[46rem] text-green-700">
+                {{ session('success') }}
+            </div>
+        </div>
+    @endif
+
+    {{-- Error message ❌ --}}
+    @error('title')
+        <div class="w-full flex justify-center items-center">
+            <div class="mt-8 w-[46rem] text-red-700">
+                {{ $message }}
+            </div>
+        </div>
+    @enderror
 
     {{-- Tasks 📝 --}}
     <div class="w-screen flex justify-center">
-        <div class="flex flex-col items-center justify-center mt-16 w-1/2">
-            <div class="flex justify-between w-full px-10">
+        <div
+            class="flex flex-col items-center justify-center {{ session('success') || session('errors') ? 'mt-2' : 'mt-12' }} w-[46rem]">
+            <div class="flex justify-between w-full">
                 <div class="flex items-center gap-2 ">
                     <span class="text-sm font-bold text-[#4EA8DE]">
                         Tareas creadas
                     </span>
                     <div class="rounded-full bg-[#333333] px-2 py-[2px]">
-                        0
+                        {{ count($todos) }}
                     </div>
                 </div>
                 <div class="flex items-center gap-2 ">
@@ -50,9 +66,36 @@
                         Finalizadas
                     </span>
                     <div class="rounded-full bg-[#333333] px-2 py-[2px]">
-                        0
+                        {{ count($todos->where('status', true)) }} de {{ count($todos) }}
                     </div>
                 </div>
+
+
+            </div>
+            {{-- ToDo card 🗃️ --}}
+            <div class="w-full my-6 space-y-5">
+                @foreach ($todos as $todo)
+                    <div class="flex justify-between items-center bg-[#262626] p-4 rounded-lg">
+                        <form action="{{ route('todos.update', $todo->id) }}" method="POST">
+                            @csrf
+                            @method('PATCH')
+                            <input type="checkbox" name="status" id="{{ $todo->id }}"
+                                class=" rounded-full checked:border-[#5E60CE] checked:bg-[#5E60CE] bg-transparent border-[#4EA8DE] hover:bg-[#1E6F9F]"
+                                @if ($todo->status) checked @endif onchange="this.form.submit()">
+                            <label for="{{ $todo->id }}"
+                                class="font-inter text-sm flex-grow mx-4 {{ $todo->status ? 'line-through' : '' }} ">{{ $todo->title }}</label>
+                        </form>
+                        <div class="flex gap-2">
+                            <form action="{{ route('todos.destroy', $todo->id) }}" method="POST">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="size-4">
+                                    <img src="{{ asset('icons/trash.svg') }}" alt="">
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                @endforeach
             </div>
         </div>
     </div>
