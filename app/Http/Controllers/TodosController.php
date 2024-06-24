@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\StoreTodoRequest;
 use App\Models\Todo;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class TodosController extends Controller
 {
@@ -12,7 +14,11 @@ class TodosController extends Controller
      */
     public function index()
     {
-        $todos = Todo::all();
+        // Obtiene el ID del usuario autenticado
+        $userId = Auth::user()->id;
+
+        // Filtra los todos que pertenecen al usuario autenticado
+        $todos = Todo::where('user_id','=' ,$userId)->paginate(5);
         return view('todo', compact('todos'));
     }
 
@@ -27,14 +33,11 @@ class TodosController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(StoreTodoRequest $request)
     {
-        $request->validate([
-            'title' => 'required|min:3'
-        ]);
-
         $todo = new Todo();
         $todo->title = $request->title;
+        $todo->user_id = Auth::user()->id;
         $todo->save();
 
         return redirect()->route('todos.index')->with('success', 'Todo creado satisfactoriamente');

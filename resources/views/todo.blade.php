@@ -10,20 +10,29 @@
     <link rel="icon" href="{{ asset('/icons/rocket.svg') }}" type="image/x-icon">
 </head>
 
-<body class="bg-[#1A1A1A] relative">
+<body class="bg-[#1A1A1A] flex flex-col justify-center items-center">
     {{-- Header 🚀 --}}
-    <div class="flex justify-center items-center bg-[#0D0D0D] h-52 font-black text-4xl">
+    <div class="flex justify-center items-center bg-[#0D0D0D] h-52 font-black text-4xl w-full">
         <img src="{{ asset('icons/rocket.svg') }}" alt="">
         <span class="text-[#4EA8DE]">ToDo</span><span class="text-[#8284FA]">Master</span>
     </div>
 
+    <form action="{{ route('logout') }}" method="POST">
+        @csrf
+        @method('POST')
+        <button>
+            Logout
+        </button>
+    </form>
+
     {{-- Create a new task ✅ --}}
-    <form class="absolute top-44 left-1/2 transform -translate-x-1/2 flex gap-2 justify-center items-center"
+    <form
+        class="mx-auto mt-12 flex gap-2 justify-center px-10 sm:px-0 items-center w-full max-w-md sm:max-w-md md:max-w-lg lg:max-w-xl xl:max-w-2xl"
         action="{{ route('todos.store') }}" method="POST">
         @csrf
 
         <input name="title" type="text" placeholder="Añada una nueva tarea"
-            class="bg-[#262626] rounded-lg p-4 w-[39rem] border-none focus:outline-none">
+            class="bg-[#262626] rounded-lg p-4 w-full border-none focus:outline-none">
         <button class="p-4 flex gap-2 rounded-lg bg-[#1E6F9F] items-center hover:bg-[#4EA8DE]">
             Crear
             <img src="{{ asset('icons/plus.svg') }}" alt="">
@@ -49,7 +58,8 @@
     @enderror
 
     {{-- Tasks 📝 --}}
-    <div class="w-screen flex justify-center">
+    <div
+        class="w-screen items-center flex justify-center px-10 sm:px-0 max-w-md sm:max-w-md md:max-w-lg lg:max-w-xl xl:max-w-2xl">
         <div
             class="flex flex-col items-center justify-center {{ session('success') || session('errors') ? 'mt-2' : 'mt-12' }} w-[46rem]">
             <div class="flex justify-between w-full">
@@ -96,6 +106,9 @@
                         </div>
                     </div>
                 @endforeach
+                <div class="mt-4">
+                    {{ $todos->links() }}
+                </div>
             </div>
         </div>
     </div>
